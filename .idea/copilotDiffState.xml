@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/MODULES_README.md">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/MODULES_README.md" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/domain/src/main/java/com/tracker/domain/usecase/GetAllItemsUseCase.kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/domain/src/main/java/com/tracker/domain/usecase/GetAllItemsUseCase.kt" />
+              <option name="updatedContent" value="package com.tracker.domain.usecase&#10;&#10;import com.tracker.domain.model.TrackerItem&#10;import com.tracker.domain.repository.TrackerRepository&#10;import kotlinx.coroutines.flow.Flow&#10;&#10;/**&#10; * Use case for getting all tracker items&#10; * Use cases encapsulate business logic and provide a clean API for the presentation layer&#10; */&#10;class GetAllItemsUseCase(&#10;    private val repository: TrackerRepository&#10;) {&#10;    operator fun invoke(): Flow&lt;List&lt;TrackerItem&gt;&gt; {&#10;        return repository.getAllItems()&#10;    }&#10;}&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
