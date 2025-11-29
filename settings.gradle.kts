@@ -21,3 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "TrackerApp"
 include(":app")
+include(":domain")
+include(":data")
