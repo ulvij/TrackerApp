@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Use case for observing theme preference
  */
-class ObserveThemeUseCase(
+class ObserveIsDarkThemeUseCase(
     private val themeRepository: ThemeRepository
 ) {
     operator fun invoke(): Flow<Boolean?> {
