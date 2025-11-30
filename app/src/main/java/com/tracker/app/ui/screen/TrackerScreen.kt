@@ -16,37 +16,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.tracker.app.state.PriceTrackerState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tracker.app.ui.components.StockListItem
 import com.tracker.app.ui.components.TopBar
-import com.tracker.app.ui.theme.ThemeViewModel
 
 /**
  * Main screen for the Price Tracker app
  */
 @Composable
 fun PriceTrackerScreen(
-    viewModel: PriceTrackerViewModel,
-    themeViewModel: ThemeViewModel,
-    modifier: Modifier = Modifier
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: TrackerViewModel  = viewModel(),
 ) {
     val state by viewModel.state.collectAsState()
-    val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
 
     PriceTrackerContent(
         state = state,
-        onToggleTracking = { viewModel.toggleTracking() },
+        onConnectionToggle = { viewModel.toggleTracking() },
         isDarkTheme = isDarkTheme,
-        onThemeToggle = { themeViewModel.toggleTheme() },
+        onThemeToggle = onThemeToggle,
         modifier = modifier
     )
 }
 
 @Composable
 fun PriceTrackerContent(
-    state: PriceTrackerState,
-    onToggleTracking: () -> Unit,
-    isDarkTheme: Boolean?,
+    state: TrackerUIState,
+    isDarkTheme: Boolean,
+    onConnectionToggle: () -> Unit,
     onThemeToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -54,7 +53,7 @@ fun PriceTrackerContent(
         topBar = {
             TopBar(
                 connectionState = state.connectionState,
-                onToggleTracking = onToggleTracking,
+                onConnectionToggle = onConnectionToggle,
                 isDarkTheme = isDarkTheme,
                 onThemeToggle = onThemeToggle
             )

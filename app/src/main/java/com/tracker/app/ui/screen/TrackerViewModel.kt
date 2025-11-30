@@ -2,7 +2,6 @@ package com.tracker.app.ui.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tracker.app.state.PriceTrackerState
 import com.tracker.domain.connection.usecase.StartConnectionUseCase
 import com.tracker.domain.connection.usecase.StopConnectionUseCase
 import com.tracker.domain.connection.usecase.ObserveConnectionStateUseCase
@@ -20,15 +19,15 @@ import javax.inject.Inject
  * ViewModel for the Price Tracker screen with Hilt injection
  */
 @HiltViewModel
-class PriceTrackerViewModel @Inject constructor(
+class TrackerViewModel @Inject constructor(
     private val startConnectionUseCase: StartConnectionUseCase,
     private val stopConnectionUseCase: StopConnectionUseCase,
     private val observeStockPricesUseCase: ObserveStockPricesUseCase,
     private val observeConnectionStateUseCase: ObserveConnectionStateUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(PriceTrackerState())
-    val state: StateFlow<PriceTrackerState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(TrackerUIState())
+    val state: StateFlow<TrackerUIState> = _state.asStateFlow()
 
     init {
         observeData()
