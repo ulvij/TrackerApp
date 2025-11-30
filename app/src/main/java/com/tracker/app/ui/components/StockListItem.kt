@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,6 +24,7 @@ import coil.compose.AsyncImage
 import com.tracker.app.ui.theme.Green
 import com.tracker.app.ui.theme.Red
 import com.tracker.app.ui.theme.TrackerAppTheme
+import com.tracker.app.tools.rememberPriceFlashColor
 import com.tracker.domain.stock.model.Stock
 
 /**
@@ -33,6 +35,9 @@ fun StockListItem(
     stock: Stock,
     modifier: Modifier = Modifier
 ) {
+    // Get the animated flash color for price changes
+    val priceFlashColor = rememberPriceFlashColor(currentPrice = stock.currentPrice)
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -77,7 +82,8 @@ fun StockListItem(
                 Text(
                     text = "$%.2f".format(stock.currentPrice),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (priceFlashColor != Color.Transparent) priceFlashColor else MaterialTheme.colorScheme.onSurface
                 )
 
                 // Price change with arrow
