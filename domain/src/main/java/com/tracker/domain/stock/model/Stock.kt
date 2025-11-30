@@ -1,9 +1,9 @@
-package com.tracker.domain.model
+package com.tracker.domain.stock.model
 
 /**
- * Domain model representing a stock symbol with its current price information
+ * Domain model representing a stock with its current price information
  */
-data class StockSymbol(
+data class Stock(
     val symbol: String,
     val currentPrice: Double,
     val previousPrice: Double,

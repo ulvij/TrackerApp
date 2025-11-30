@@ -1,16 +1,16 @@
-package com.tracker.domain.usecase
+package com.tracker.domain.stock.usecase
 
-import com.tracker.domain.model.StockSymbol
-import com.tracker.domain.repository.StockRepository
+import com.tracker.domain.stock.model.Stock
+import com.tracker.domain.stock.repository.StockRepository
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Use case for observing real-time price updates
+ * Use case for observing real-time prices of Stocks
  */
-class ObservePriceUpdatesUseCase(
+class ObserveStockPricesUseCase(
     private val stockRepository: StockRepository
 ) {
-    operator fun invoke(): Flow<List<StockSymbol>> {
+    operator fun invoke(): Flow<List<Stock>> {
         return stockRepository.observePriceUpdates()
     }
 }

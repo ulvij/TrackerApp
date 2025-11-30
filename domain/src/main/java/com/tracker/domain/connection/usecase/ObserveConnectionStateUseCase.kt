@@ -1,7 +1,7 @@
-package com.tracker.domain.usecase
+package com.tracker.domain.connection.usecase
 
-import com.tracker.domain.model.ConnectionState
-import com.tracker.domain.repository.ConnectionRepository
+import com.tracker.domain.connection.model.ConnectionState
+import com.tracker.domain.connection.repository.ConnectionRepository
 import kotlinx.coroutines.flow.Flow
 
 /**
