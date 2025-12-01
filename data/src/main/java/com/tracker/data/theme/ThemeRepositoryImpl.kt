@@ -24,6 +24,18 @@ class ThemeRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ThemeRepository {
 
+    // Internal constructor for testing
+    internal constructor(
+        context: Context,
+        dataStore: DataStore<Preferences>
+    ) : this(context) {
+        this.testDataStore = dataStore
+    }
+
+    private var testDataStore: DataStore<Preferences>? = null
+    private val dataStore: DataStore<Preferences>
+        get() = testDataStore ?: context.dataStore
+
     private val isDarkThemeKey = booleanPreferencesKey("is_dark_theme")
 
     /**
@@ -39,9 +51,10 @@ class ThemeRepositoryImpl @Inject constructor(
      * Observe the dark theme preference
      * Returns null when no preference is saved (use system default)
      */
-    override val isDarkTheme: Flow<Boolean?> = context.dataStore.data.map { preferences ->
-        preferences[isDarkThemeKey]
-    }
+    override val isDarkTheme: Flow<Boolean?>
+        get() = dataStore.data.map { preferences ->
+            preferences[isDarkThemeKey]
+        }
 
     /**
      * Toggle theme between light and dark
@@ -52,7 +65,7 @@ class ThemeRepositoryImpl @Inject constructor(
             false -> true  // Light -> Dark
             null -> !isSystemInDarkMode() // System -> Toggle from system state
         }
-        context.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[isDarkThemeKey] = newValue
         }
     }

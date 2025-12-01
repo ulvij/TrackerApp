@@ -12,4 +12,16 @@ interface StockRepository {
      * Observe real-time price updates for all stocks
      */
     fun observePriceUpdates(): Flow<List<Stock>>
+
+    /**
+     * Update prices for multiple stocks from external source
+     * Implementation should handle the conversion from external format
+     */
+    fun updatePrices(priceUpdates: List<*>)
+
+    /**
+     * Get current stock list snapshot
+     * @return List of all stocks with current prices
+     */
+    fun getCurrentStocks(): List<Stock>
 }
