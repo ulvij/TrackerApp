@@ -108,22 +108,31 @@ class StockPriceCoordinator @Inject constructor(
                 val currentStocks = stockRepository.getCurrentStocks()
                 Log.d(TAG, "Generating prices for ${currentStocks.size} stocks")
 
-                // Generate new prices for all stocks
-                val priceUpdates = currentStocks.map { stock ->
-                    PriceUpdateDto(
-                        symbol = stock.symbol,
-                        price = generateNextPrice(stock.currentPrice),
-                        timestamp = System.currentTimeMillis()
-                    )
+                if (currentStocks.isNotEmpty()) {
+                    // Calculate delay between each symbol to spread updates across 2 seconds
+                    val delayBetweenUpdates = PRICE_UPDATE_INTERVAL_MS / currentStocks.size
+
+                    // Generate and send price for each stock individually
+                    currentStocks.forEach { stock ->
+                        val priceUpdate = PriceUpdateDto(
+                            symbol = stock.symbol,
+                            price = generateNextPrice(stock.currentPrice),
+                            timestamp = System.currentTimeMillis()
+                        )
+
+                        // Send individual price update via WebSocket
+                        val priceUpdateList = PriceUpdateListDto(updates = listOf(priceUpdate))
+                        val message = gson.toJson(priceUpdateList)
+                        Log.d(TAG, "Sending price update for ${stock.symbol}: $message")
+                        connectionRepository.sendMessage(message)
+
+                        // Wait before sending next symbol's update
+                        delay(delayBetweenUpdates)
+                    }
+                } else {
+                    // If no stocks, wait full interval
+                    delay(PRICE_UPDATE_INTERVAL_MS)
                 }
-
-                // Send all price updates as a single list via WebSocket
-                val priceUpdateList = PriceUpdateListDto(updates = priceUpdates)
-                val message = gson.toJson(priceUpdateList)
-                Log.d(TAG, "Sending price update message: ${message.take(100)}...")
-                connectionRepository.sendMessage(message)
-
-                delay(PRICE_UPDATE_INTERVAL_MS)
             }
         }
     }
@@ -146,4 +155,3 @@ class StockPriceCoordinator @Inject constructor(
         generationJob = null
     }
 }
-
