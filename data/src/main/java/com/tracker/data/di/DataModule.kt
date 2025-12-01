@@ -38,10 +38,8 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideStockRepository(
-        connectionRepository: ConnectionRepository
-    ): StockRepository {
-        return StockRepositoryImpl(connectionRepository)
+    fun provideStockRepository(): StockRepository {
+        return StockRepositoryImpl()
     }
 
     @Provides

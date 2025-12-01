@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -24,17 +25,22 @@ import com.tracker.app.ui.components.TopBar
  * Main screen for the Price Tracker app
  */
 @Composable
-fun PriceTrackerScreen(
+fun TrackerScreen(
     isDarkTheme: Boolean,
     onThemeToggle: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: TrackerViewModel  = viewModel(),
+    viewModel: TrackerViewModel = viewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
-    PriceTrackerContent(
+    // Memoize the callback to prevent unnecessary recompositions
+    val onConnectionToggle = remember(viewModel) {
+        { viewModel.toggleTracking() }
+    }
+
+    TrackerContent(
         state = state,
-        onConnectionToggle = { viewModel.toggleTracking() },
+        onConnectionToggle = onConnectionToggle,
         isDarkTheme = isDarkTheme,
         onThemeToggle = onThemeToggle,
         modifier = modifier
@@ -42,7 +48,7 @@ fun PriceTrackerScreen(
 }
 
 @Composable
-fun PriceTrackerContent(
+fun TrackerContent(
     state: TrackerUIState,
     isDarkTheme: Boolean,
     onConnectionToggle: () -> Unit,

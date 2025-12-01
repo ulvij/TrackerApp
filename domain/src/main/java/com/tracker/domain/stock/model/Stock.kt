@@ -2,6 +2,7 @@ package com.tracker.domain.stock.model
 
 /**
  * Domain model representing a stock with its current price information
+ * Computed properties are cached for better performance
  */
 data class Stock(
     val symbol: String,
@@ -10,20 +11,17 @@ data class Stock(
     val timestamp: Long = System.currentTimeMillis(),
     val logoUrl: String? = null
 ) {
-    val priceChange: Double
-        get() = currentPrice - previousPrice
+    // Cache computed properties for performance
+    val priceChange: Double = currentPrice - previousPrice
 
-    val priceChangePercentage: Double
-        get() = if (previousPrice != 0.0) {
-            ((currentPrice - previousPrice) / previousPrice) * 100
-        } else {
-            0.0
-        }
+    val priceChangePercentage: Double = if (previousPrice != 0.0) {
+        ((currentPrice - previousPrice) / previousPrice) * 100
+    } else {
+        0.0
+    }
 
-    val isPriceIncreased: Boolean
-        get() = currentPrice > previousPrice
+    val isPriceIncreased: Boolean = currentPrice > previousPrice
 
-    val isPriceDecreased: Boolean
-        get() = currentPrice < previousPrice
+    val isPriceDecreased: Boolean = currentPrice < previousPrice
 }
 

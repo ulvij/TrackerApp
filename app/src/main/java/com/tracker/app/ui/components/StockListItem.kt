@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,14 +24,16 @@ import coil.compose.AsyncImage
 import com.tracker.app.ui.theme.Green
 import com.tracker.app.ui.theme.Red
 import com.tracker.app.ui.theme.TrackerAppTheme
-import com.tracker.domain.stock.model.Stock
+import com.tracker.app.tools.rememberPriceFlashColor
+import com.tracker.app.ui.model.StockUIModel
 
 /**
  * List item component displaying stock information
+ * Optimized for minimal recomposition - only price section recomposes on updates
  */
 @Composable
 fun StockListItem(
-    stock: Stock,
+    stock: StockUIModel,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -46,65 +49,129 @@ fun StockListItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Logo and Symbol
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Stock logo
-                AsyncImage(
-                    model = stock.logoUrl,
-                    contentDescription = "${stock.symbol} logo",
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Fit
-                )
+            StockIdentity(
+                symbol = stock.symbol,
+                logoUrl = stock.logoUrl
+            )
 
-                // Symbol
-                Text(
-                    text = stock.symbol,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            // Price and change
-            Column(
-                horizontalAlignment = Alignment.End
-            ) {
-                // Current price
-                Text(
-                    text = "$%.2f".format(stock.currentPrice),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                // Price change with arrow
-                if (stock.priceChange != 0.0) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        // Use text arrow instead of icon
-                        Text(
-                            text = if (stock.isPriceIncreased) "▲" else "▼",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (stock.isPriceIncreased) Green else Red,
-                            modifier = Modifier.padding(end = 2.dp)
-                        )
-                        Text(
-                            text = "$%.2f (%.2f%%)".format(
-                                kotlin.math.abs(stock.priceChange),
-                                kotlin.math.abs(stock.priceChangePercentage)
-                            ),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (stock.isPriceIncreased) Green else Red
-                        )
-                    }
-                }
-            }
+            StockPriceSection(
+                currentPrice = stock.currentPrice,
+                priceChange = stock.priceChange,
+                priceChangePercentage = stock.priceChangePercentage,
+                isPriceIncreased = stock.isPriceIncreased
+            )
         }
+    }
+}
+
+/**
+ * Static identity section (logo + symbol)
+ * Won't recompose when only price changes
+ */
+@Composable
+private fun StockIdentity(
+    symbol: String,
+    logoUrl: String?,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = modifier
+    ) {
+        // Stock logo
+        AsyncImage(
+            model = logoUrl,
+            contentDescription = "$symbol logo",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Fit
+        )
+
+        // Symbol
+        Text(
+            text = symbol,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+/**
+ * Dynamic price section
+ * This is the only part that recomposes when price changes
+ */
+@Composable
+private fun StockPriceSection(
+    currentPrice: Double,
+    priceChange: Double,
+    priceChangePercentage: Double,
+    isPriceIncreased: Boolean,
+    modifier: Modifier = Modifier
+) {
+    // Get the animated flash color for price changes
+    val priceFlashColor = rememberPriceFlashColor(currentPrice = currentPrice)
+
+    Column(
+        horizontalAlignment = Alignment.End,
+        modifier = modifier
+    ) {
+        // Current price
+        Text(
+            text = "$%.2f".format(currentPrice),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = if (priceFlashColor != Color.Transparent) priceFlashColor else MaterialTheme.colorScheme.onSurface
+        )
+
+        // Price change with arrow
+        if (priceChange != 0.0) {
+            PriceChangeIndicator(
+                priceChange = priceChange,
+                priceChangePercentage = priceChangePercentage,
+                isPriceIncreased = isPriceIncreased
+            )
+        }
+    }
+}
+
+/**
+ * Price change indicator (arrow + change amount)
+ * Separated for even finer-grained recomposition control
+ */
+@Composable
+private fun PriceChangeIndicator(
+    priceChange: Double,
+    priceChangePercentage: Double,
+    isPriceIncreased: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val changeColor = if (isPriceIncreased) Green else Red
+    val arrowSymbol = if (isPriceIncreased) "▲" else "▼"
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = modifier
+    ) {
+        // Arrow
+        Text(
+            text = arrowSymbol,
+            style = MaterialTheme.typography.bodySmall,
+            color = changeColor,
+            modifier = Modifier.padding(end = 2.dp)
+        )
+
+        // Change amount and percentage
+        Text(
+            text = "$%.2f (%.2f%%)".format(
+                kotlin.math.abs(priceChange),
+                kotlin.math.abs(priceChangePercentage)
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = changeColor
+        )
     }
 }
 
@@ -115,28 +182,43 @@ fun StockListItemPreview() {
         Column {
             // Stock with price increase
             StockListItem(
-                stock = Stock(
+                stock = StockUIModel(
                     symbol = "AAPL",
                     currentPrice = 185.50,
-                    previousPrice = 182.30
+                    previousPrice = 182.30,
+                    priceChange = 3.20,
+                    priceChangePercentage = 1.76,
+                    isPriceIncreased = true,
+                    logoUrl = null,
+                    timestamp = System.currentTimeMillis()
                 )
             )
 
             // Stock with price decrease
             StockListItem(
-                stock = Stock(
+                stock = StockUIModel(
                     symbol = "GOOG",
                     currentPrice = 142.75,
-                    previousPrice = 148.20
+                    previousPrice = 148.20,
+                    priceChange = -5.45,
+                    priceChangePercentage = -3.68,
+                    isPriceIncreased = false,
+                    logoUrl = null,
+                    timestamp = System.currentTimeMillis()
                 )
             )
 
             // Stock with no change
             StockListItem(
-                stock = Stock(
+                stock = StockUIModel(
                     symbol = "TSLA",
                     currentPrice = 245.00,
-                    previousPrice = 245.00
+                    previousPrice = 245.00,
+                    priceChange = 0.0,
+                    priceChangePercentage = 0.0,
+                    isPriceIncreased = false,
+                    logoUrl = null,
+                    timestamp = System.currentTimeMillis()
                 )
             )
         }
@@ -150,19 +232,29 @@ fun StockListItemDarkPreview() {
         Column {
             // Stock with price increase
             StockListItem(
-                stock = Stock(
+                stock = StockUIModel(
                     symbol = "AAPL",
                     currentPrice = 185.50,
-                    previousPrice = 182.30
+                    previousPrice = 182.30,
+                    priceChange = 3.20,
+                    priceChangePercentage = 1.76,
+                    isPriceIncreased = true,
+                    logoUrl = null,
+                    timestamp = System.currentTimeMillis()
                 )
             )
 
             // Stock with price decrease
             StockListItem(
-                stock = Stock(
+                stock = StockUIModel(
                     symbol = "GOOG",
                     currentPrice = 142.75,
-                    previousPrice = 148.20
+                    previousPrice = 148.20,
+                    priceChange = -5.45,
+                    priceChangePercentage = -3.68,
+                    isPriceIncreased = false,
+                    logoUrl = null,
+                    timestamp = System.currentTimeMillis()
                 )
             )
         }
@@ -174,10 +266,15 @@ fun StockListItemDarkPreview() {
 fun StockListItemIncreasedPreview() {
     TrackerAppTheme {
         StockListItem(
-            stock = Stock(
+            stock = StockUIModel(
                 symbol = "NVDA",
                 currentPrice = 495.85,
-                previousPrice = 472.10
+                previousPrice = 472.10,
+                priceChange = 23.75,
+                priceChangePercentage = 5.03,
+                isPriceIncreased = true,
+                logoUrl = null,
+                timestamp = System.currentTimeMillis()
             )
         )
     }
@@ -188,10 +285,15 @@ fun StockListItemIncreasedPreview() {
 fun StockListItemDecreasedPreview() {
     TrackerAppTheme {
         StockListItem(
-            stock = Stock(
+            stock = StockUIModel(
                 symbol = "META",
                 currentPrice = 328.40,
-                previousPrice = 345.75
+                previousPrice = 345.75,
+                priceChange = -17.35,
+                priceChangePercentage = -5.02,
+                isPriceIncreased = false,
+                logoUrl = null,
+                timestamp = System.currentTimeMillis()
             )
         )
     }

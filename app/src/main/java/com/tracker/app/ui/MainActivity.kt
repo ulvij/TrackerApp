@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.tracker.app.ui.screen.PriceTrackerScreen
+import com.tracker.app.ui.screen.TrackerScreen
 import com.tracker.app.ui.theme.TrackerAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.map
@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                 .collectAsState(initial = systemInDarkTheme)
 
             TrackerAppTheme(isDarkTheme = isDarkTheme) {
-                PriceTrackerScreen(
+                TrackerScreen(
                     isDarkTheme = isDarkTheme,
                     onThemeToggle = { mainViewModel.toggleTheme() }
                 )
