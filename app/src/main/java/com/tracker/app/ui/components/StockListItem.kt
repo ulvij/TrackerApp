@@ -17,15 +17,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.tracker.app.tools.rememberPriceFlashColor
+import com.tracker.app.ui.TestTags
+import com.tracker.app.ui.model.StockUIModel
 import com.tracker.app.ui.theme.Green
 import com.tracker.app.ui.theme.Red
 import com.tracker.app.ui.theme.TrackerAppTheme
-import com.tracker.app.tools.rememberPriceFlashColor
-import com.tracker.app.ui.model.StockUIModel
 
 /**
  * List item component displaying stock information
@@ -39,7 +41,8 @@ fun StockListItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .testTag("${TestTags.STOCK_ITEM_PREFIX}${stock.symbol}"),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -55,6 +58,7 @@ fun StockListItem(
             )
 
             StockPriceSection(
+                symbol = stock.symbol,
                 currentPrice = stock.currentPrice,
                 priceChange = stock.priceChange,
                 priceChangePercentage = stock.priceChangePercentage,
@@ -104,6 +108,7 @@ private fun StockIdentity(
  */
 @Composable
 private fun StockPriceSection(
+    symbol: String,
     currentPrice: Double,
     priceChange: Double,
     priceChangePercentage: Double,
@@ -122,12 +127,14 @@ private fun StockPriceSection(
             text = "$%.2f".format(currentPrice),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = if (priceFlashColor != Color.Transparent) priceFlashColor else MaterialTheme.colorScheme.onSurface
+            color = if (priceFlashColor != Color.Transparent) priceFlashColor else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.testTag("${TestTags.STOCK_PRICE_PREFIX}$symbol")
         )
 
         // Price change with arrow
         if (priceChange != 0.0) {
             PriceChangeIndicator(
+                symbol = symbol,
                 priceChange = priceChange,
                 priceChangePercentage = priceChangePercentage,
                 isPriceIncreased = isPriceIncreased
@@ -142,6 +149,7 @@ private fun StockPriceSection(
  */
 @Composable
 private fun PriceChangeIndicator(
+    symbol: String,
     priceChange: Double,
     priceChangePercentage: Double,
     isPriceIncreased: Boolean,
@@ -150,29 +158,15 @@ private fun PriceChangeIndicator(
     val changeColor = if (isPriceIncreased) Green else Red
     val arrowSymbol = if (isPriceIncreased) "▲" else "▼"
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = modifier
-    ) {
-        // Arrow
-        Text(
-            text = arrowSymbol,
-            style = MaterialTheme.typography.bodySmall,
-            color = changeColor,
-            modifier = Modifier.padding(end = 2.dp)
-        )
-
-        // Change amount and percentage
-        Text(
-            text = "$%.2f (%.2f%%)".format(
-                kotlin.math.abs(priceChange),
-                kotlin.math.abs(priceChangePercentage)
-            ),
-            style = MaterialTheme.typography.bodySmall,
-            color = changeColor
-        )
-    }
+    Text(
+        text = "$arrowSymbol $%.2f (%.2f%%)".format(
+            kotlin.math.abs(priceChange),
+            kotlin.math.abs(priceChangePercentage)
+        ),
+        style = MaterialTheme.typography.bodyMedium,
+        color = changeColor,
+        modifier = modifier.testTag("${TestTags.STOCK_CHANGE_PREFIX}$symbol")
+    )
 }
 
 @Preview(showBackground = true, name = "Light Theme")

@@ -15,10 +15,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tracker.app.R
+import com.tracker.app.ui.TestTags
 import com.tracker.app.ui.theme.TrackerAppTheme
 import com.tracker.domain.connection.model.ConnectionState
 
@@ -48,7 +50,8 @@ fun TopBar(
                 ) {
                     Text(
                         text = stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.testTag(TestTags.APP_TITLE)
                     )
                     ConnectionStatusIndicator(connectionState = connectionState)
                 }
@@ -60,9 +63,13 @@ fun TopBar(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Theme toggle button
-                    IconButton(onClick = onThemeToggle) {
+                    IconButton(
+                        onClick = onThemeToggle,
+                        modifier = Modifier.testTag(TestTags.THEME_TOGGLE)
+                    ) {
                         Text(
                             text = if (isDarkTheme) "🌙" else "☀️",
+                            modifier = Modifier.testTag(if (isDarkTheme) TestTags.ICON_MOON else TestTags.ICON_SUN),
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
@@ -70,7 +77,8 @@ fun TopBar(
                     // Start/Stop switch
                     Switch(
                         checked = connectionState.isConnected,
-                        onCheckedChange = { onConnectionToggle() }
+                        onCheckedChange = { onConnectionToggle() },
+                        modifier = Modifier.testTag(TestTags.CONNECTION_SWITCH)
                     )
                 }
             }
@@ -79,7 +87,7 @@ fun TopBar(
             containerColor = MaterialTheme.colorScheme.surface,
             titleContentColor = MaterialTheme.colorScheme.onSurface
         ),
-        modifier = modifier
+        modifier = modifier.testTag(TestTags.TOP_BAR)
     )
 }
 

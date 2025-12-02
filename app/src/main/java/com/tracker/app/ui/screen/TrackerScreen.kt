@@ -15,9 +15,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tracker.app.R
+import com.tracker.app.ui.TestTags
 import com.tracker.app.ui.components.StockListItem
 import com.tracker.app.ui.components.TopBar
 
@@ -64,7 +68,9 @@ fun TrackerContent(
                 onThemeToggle = onThemeToggle
             )
         },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .testTag(TestTags.TRACKER_SCREEN)
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -75,26 +81,31 @@ fun TrackerContent(
                 state.stocks.isEmpty() && state.connectionState.isConnected.not() -> {
                     // Empty state
                     Text(
-                        text = "Press Start to begin tracking stock prices",
+                        text = stringResource(R.string.empty_message),
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .align(Alignment.Center)
                             .padding(32.dp)
+                            .testTag(TestTags.EMPTY_MESSAGE)
                     )
                 }
 
                 state.stocks.isEmpty() && state.connectionState.isConnected -> {
                     // Loading state
                     CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .testTag(TestTags.LOADING_INDICATOR)
                     )
                 }
 
                 else -> {
                     // Stock list
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag(TestTags.STOCK_LIST)
                     ) {
                         items(
                             items = state.stocks,
