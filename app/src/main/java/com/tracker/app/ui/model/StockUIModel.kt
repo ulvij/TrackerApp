@@ -42,4 +42,3 @@ fun Stock.toUIModel(): StockUIModel {
 fun List<Stock>.toUIModels(): List<StockUIModel> {
     return map { it.toUIModel() }
 }
-
