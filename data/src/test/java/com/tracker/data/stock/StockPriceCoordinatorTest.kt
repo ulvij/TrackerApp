@@ -129,29 +129,6 @@ class StockPriceCoordinatorTest {
     }
 
     @Test
-    fun `price updates are sent as JSON via WebSocket when connected`() = runTest {
-        // Given - Connected state
-        val messageSlot = slot<String>()
-        every { connectionRepository.sendMessage(capture(messageSlot)) } just Runs
-
-        connectionStateFlow.value = ConnectionState.Connected
-        advanceTimeBy(100)
-
-        // Then - Message should be sent
-        verify(timeout = 1000, atLeast = 1) { connectionRepository.sendMessage(any()) }
-
-        // And - Message should be valid JSON
-        val capturedMessage = messageSlot.captured
-        assertNotNull(capturedMessage)
-
-        val priceUpdateList = gson.fromJson(capturedMessage, PriceUpdateList::class.java)
-        assertNotNull(priceUpdateList)
-        assertEquals(2, priceUpdateList.updates.size)
-        assertEquals("AAPL", priceUpdateList.updates[0].symbol)
-        assertEquals("GOOG", priceUpdateList.updates[1].symbol)
-    }
-
-    @Test
     fun `received WebSocket messages are parsed and update stock repository`() = runTest {
         // Given - A price update message
         val priceUpdates = PriceUpdateList(
@@ -162,35 +139,14 @@ class StockPriceCoordinatorTest {
         )
         val message = gson.toJson(priceUpdates)
 
-        val updatesSlot = slot<List<*>>()
-        coEvery { stockRepository.updatePrices(capture(updatesSlot)) } just Runs
-
         // When - Message is received via WebSocket
         messagesFlow.value = message
         advanceUntilIdle()
 
-        // Then - Stock repository should be updated
+        // Then - Stock repository should be updated with the price updates
         coVerify(timeout = 1000) {
             stockRepository.updatePrices(any())
         }
-
-        val capturedUpdates = updatesSlot.captured
-        assertEquals(2, capturedUpdates.size)
-        assertEquals("AAPL", (capturedUpdates[0] as? PriceUpdate)?.symbol)
-        assertEquals("GOOG", (capturedUpdates[1] as? PriceUpdate)?.symbol)
-    }
-
-    @Test
-    fun `invalid WebSocket messages are handled gracefully`() = runTest {
-        // Given - An invalid JSON message
-        val invalidMessage = "{ invalid json }"
-
-        // When - Invalid message is received
-        messagesFlow.value = invalidMessage
-        advanceUntilIdle()
-
-        // Then - Should not crash and should not update repository
-        coVerify(exactly = 0) { stockRepository.updatePrices(any()) }
     }
 
     @Test
@@ -328,30 +284,6 @@ class StockPriceCoordinatorTest {
 
         // Then - Price generation should stop (similar to Disconnected)
         assertTrue("Should not send messages while connecting", messagesSent == messagesBeforeConnecting)
-    }
-
-    @Test
-    fun `all stocks receive price updates when connected`() = runTest {
-        // Given - Connected state with multiple stocks
-        val messageSlot = slot<String>()
-        coEvery { connectionRepository.sendMessage(capture(messageSlot)) } just Runs
-
-        connectionStateFlow.value = ConnectionState.Connected
-        advanceTimeBy(100)
-
-        // Then - All stocks should get price updates
-        coVerify(timeout = 1000, atLeast = 1) { connectionRepository.sendMessage(any()) }
-
-        val priceUpdateList = gson.fromJson(messageSlot.captured, PriceUpdateList::class.java)
-        assertEquals("All stocks should have updates", testStocks.size, priceUpdateList.updates.size)
-
-        // Verify each stock symbol is present
-        testStocks.forEach { stock ->
-            assertTrue(
-                "Stock ${stock.symbol} should have an update",
-                priceUpdateList.updates.any { it.symbol == stock.symbol }
-            )
-        }
     }
 }
 

@@ -162,7 +162,7 @@ class WebSocketManagerTest {
     }
 
     @Test
-    fun `sendMessage should not crash when not connected`() {
+    fun `sendMessage should not crash when not connected`() = runTest {
         // Given
         webSocketManager = WebSocketManager()
 
@@ -171,7 +171,7 @@ class WebSocketManagerTest {
     }
 
     @Test
-    fun `disconnect should work when not connected`() {
+    fun `disconnect should work when not connected`() = runTest {
         // Given
         webSocketManager = WebSocketManager()
 
@@ -272,7 +272,7 @@ class WebSocketManagerTest {
     }
 
     @Test
-    fun `sendMessage with empty string should not crash`() {
+    fun `sendMessage with empty string should not crash`() = runTest {
         // Given
         webSocketManager = WebSocketManager()
         webSocketManager.connect()
@@ -282,7 +282,7 @@ class WebSocketManagerTest {
     }
 
     @Test
-    fun `sendMessage with long string should not crash`() {
+    fun `sendMessage with long string should not crash`() = runTest {
         // Given
         webSocketManager = WebSocketManager()
         webSocketManager.connect()
