@@ -4,10 +4,14 @@ import app.cash.turbine.test
 import com.tracker.data.connection.client.WebSocketManager
 import com.tracker.domain.connection.model.ConnectionState
 import io.mockk.clearAllMocks
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -18,10 +22,12 @@ import org.junit.Test
 /**
  * Test cases for ConnectionRepositoryImpl
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class ConnectionRepositoryImplTest {
 
     private lateinit var webSocketManager: WebSocketManager
     private lateinit var connectionRepository: ConnectionRepositoryImpl
+    private val testDispatcher = StandardTestDispatcher()
 
     private val connectionStateFlow = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
     private val messagesFlow = MutableStateFlow("")
@@ -42,25 +48,25 @@ class ConnectionRepositoryImplTest {
     }
 
     @Test
-    fun `connect should call webSocketManager connect`() {
+    fun `connect should call webSocketManager connect`() = runTest {
         // When
         connectionRepository.connect()
 
         // Then
-        verify(exactly = 1) { webSocketManager.connect() }
+        coVerify(exactly = 1) { webSocketManager.connect() }
     }
 
     @Test
-    fun `disconnect should call webSocketManager disconnect`() {
+    fun `disconnect should call webSocketManager disconnect`() = runTest {
         // When
         connectionRepository.disconnect()
 
         // Then
-        verify(exactly = 1) { webSocketManager.disconnect() }
+        coVerify(exactly = 1) { webSocketManager.disconnect() }
     }
 
     @Test
-    fun `sendMessage should call webSocketManager sendMessage`() {
+    fun `sendMessage should call webSocketManager sendMessage`() = runTest {
         // Given
         val message = "test message"
 
@@ -68,7 +74,7 @@ class ConnectionRepositoryImplTest {
         connectionRepository.sendMessage(message)
 
         // Then
-        verify(exactly = 1) { webSocketManager.sendMessage(message) }
+        coVerify(exactly = 1) { webSocketManager.sendMessage(message) }
     }
 
     @Test
@@ -128,25 +134,25 @@ class ConnectionRepositoryImplTest {
     }
 
     @Test
-    fun `should handle multiple connect calls`() {
+    fun `should handle multiple connect calls`() = runTest {
         // When
         connectionRepository.connect()
         connectionRepository.connect()
         connectionRepository.connect()
 
         // Then
-        verify(exactly = 3) { webSocketManager.connect() }
+        coVerify(exactly = 3) { webSocketManager.connect() }
     }
 
     @Test
-    fun `should handle multiple disconnect calls`() {
+    fun `should handle multiple disconnect calls`() = runTest {
         // When
         connectionRepository.disconnect()
         connectionRepository.disconnect()
         connectionRepository.disconnect()
 
         // Then
-        verify(exactly = 3) { webSocketManager.disconnect() }
+        coVerify(exactly = 3) { webSocketManager.disconnect() }
     }
 
     @Test
@@ -181,24 +187,26 @@ class ConnectionRepositoryImplTest {
     }
 
     @Test
-    fun `sendMessage should handle empty message`() {
+    fun `sendMessage should handle empty message`() = runTest {
         // When
         connectionRepository.sendMessage("")
+        advanceUntilIdle()
 
         // Then
-        verify(exactly = 1) { webSocketManager.sendMessage("") }
+        coVerify(exactly = 1) { webSocketManager.sendMessage("") }
     }
 
     @Test
-    fun `sendMessage should handle long message`() {
+    fun `sendMessage should handle long message`() = runTest {
         // Given
         val longMessage = "x".repeat(10000)
 
         // When
         connectionRepository.sendMessage(longMessage)
+        advanceUntilIdle()
 
         // Then
-        verify(exactly = 1) { webSocketManager.sendMessage(longMessage) }
+        coVerify(exactly = 1) { webSocketManager.sendMessage(longMessage) }
     }
 
     @Test

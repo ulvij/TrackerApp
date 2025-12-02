@@ -1,7 +1,7 @@
 package com.tracker.data.stock
 
 import app.cash.turbine.test
-import com.tracker.data.stock.model.PriceUpdateDto
+import com.tracker.domain.stock.model.PriceUpdate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -101,8 +101,8 @@ class StockRepositoryImplTest {
     fun `should update stock prices via updatePrices method`() = runTest {
         // Given
         val updates = listOf(
-            PriceUpdateDto("AAPL", 999.99, System.currentTimeMillis()),
-            PriceUpdateDto("GOOG", 888.88, System.currentTimeMillis())
+            PriceUpdate("AAPL", 999.99, System.currentTimeMillis()),
+            PriceUpdate("GOOG", 888.88, System.currentTimeMillis())
         )
 
         // When
@@ -139,7 +139,7 @@ class StockRepositoryImplTest {
             // When - Update with new price
             val newPrice = initialPrice + 10.0
             val updates = listOf(
-                PriceUpdateDto(symbol, newPrice, System.currentTimeMillis())
+                PriceUpdate(symbol, newPrice, System.currentTimeMillis())
             )
 
             stockRepository.updatePrices(updates)
@@ -159,9 +159,9 @@ class StockRepositoryImplTest {
     fun `should update multiple stocks at once`() = runTest {
         // Given
         val updates = listOf(
-            PriceUpdateDto("AAPL", 100.0, System.currentTimeMillis()),
-            PriceUpdateDto("GOOG", 200.0, System.currentTimeMillis()),
-            PriceUpdateDto("TSLA", 300.0, System.currentTimeMillis())
+            PriceUpdate("AAPL", 100.0, System.currentTimeMillis()),
+            PriceUpdate("GOOG", 200.0, System.currentTimeMillis()),
+            PriceUpdate("TSLA", 300.0, System.currentTimeMillis())
         )
 
         // When
@@ -189,7 +189,7 @@ class StockRepositoryImplTest {
     fun `should maintain sorted order after price updates`() = runTest {
         // Given - Make AAPL have the highest price
         val updates = listOf(
-            PriceUpdateDto("AAPL", 99999.99, System.currentTimeMillis())
+            PriceUpdate("AAPL", 99999.99, System.currentTimeMillis())
         )
 
         // When

@@ -21,7 +21,5 @@ data class Stock(
     }
 
     val isPriceIncreased: Boolean = currentPrice > previousPrice
-
-    val isPriceDecreased: Boolean = currentPrice < previousPrice
 }
 

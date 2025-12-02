@@ -9,21 +9,24 @@ import javax.inject.Singleton
 
 /**
  * Implementation of ConnectionRepository using WebSocket
+ *
+ * Note: Thread-safety is handled by WebSocketManager's internal Mutex.
+ * This repository is just a thin adapter layer.
  */
 @Singleton
 class ConnectionRepositoryImpl @Inject constructor(
     private val webSocketManager: WebSocketManager
 ) : ConnectionRepository {
 
-    override fun connect() {
+    override suspend fun connect() {
         webSocketManager.connect()
     }
 
-    override fun disconnect() {
+    override suspend fun disconnect() {
         webSocketManager.disconnect()
     }
 
-    override fun sendMessage(message: String) {
+    override suspend fun sendMessage(message: String) {
         webSocketManager.sendMessage(message)
     }
 

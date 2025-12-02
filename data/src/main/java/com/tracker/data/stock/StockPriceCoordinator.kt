@@ -1,10 +1,10 @@
 package com.tracker.data.stock
 
 import com.google.gson.Gson
-import com.tracker.data.stock.model.PriceUpdateDto
-import com.tracker.data.stock.model.PriceUpdateListDto
 import com.tracker.domain.connection.model.ConnectionState
 import com.tracker.domain.connection.repository.ConnectionRepository
+import com.tracker.domain.stock.model.PriceUpdate
+import com.tracker.domain.stock.model.PriceUpdateList
 import com.tracker.domain.stock.repository.StockRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +56,7 @@ class StockPriceCoordinator @Inject constructor(
         connectionRepository.observeMessages()
             .onEach { message ->
                 if (message.isNotEmpty()) {
-                    val priceUpdates = gson.fromJson(message, PriceUpdateListDto::class.java)
+                    val priceUpdates = gson.fromJson(message, PriceUpdateList::class.java)
                     stockRepository.updatePrices(priceUpdates.updates)
                 }
             }
@@ -75,12 +75,12 @@ class StockPriceCoordinator @Inject constructor(
                     val delayBetweenUpdates = PRICE_UPDATE_INTERVAL_MS / shuffledStocks.size
 
                     shuffledStocks.forEach { stock ->
-                        val priceUpdate = PriceUpdateDto(
+                        val priceUpdate = PriceUpdate(
                             symbol = stock.symbol,
                             price = generateNextPrice(stock.currentPrice),
                             timestamp = System.currentTimeMillis()
                         )
-                        val priceUpdateList = PriceUpdateListDto(updates = listOf(priceUpdate))
+                        val priceUpdateList = PriceUpdateList(updates = listOf(priceUpdate))
                         val message = gson.toJson(priceUpdateList)
                         connectionRepository.sendMessage(message)
                         delay(delayBetweenUpdates)
