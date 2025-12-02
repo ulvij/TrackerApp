@@ -10,17 +10,17 @@ interface ConnectionRepository {
     /**
      * Connect to the real-time server
      */
-    fun connect()
+    suspend fun connect()
 
     /**
      * Disconnect from the real-time server
      */
-    fun disconnect()
+    suspend fun disconnect()
 
     /**
      * Send a message through the connection
      */
-    fun sendMessage(message: String)
+    suspend fun sendMessage(message: String)
 
     /**
      * Observe incoming messages from the connection

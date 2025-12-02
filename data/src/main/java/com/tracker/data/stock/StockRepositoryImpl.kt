@@ -1,6 +1,6 @@
 package com.tracker.data.stock
 
-import com.tracker.data.stock.model.PriceUpdateDto
+import com.tracker.domain.stock.model.PriceUpdate
 import com.tracker.domain.stock.model.Stock
 import com.tracker.domain.stock.repository.StockRepository
 import kotlinx.coroutines.flow.Flow
@@ -11,8 +11,7 @@ import javax.inject.Singleton
 
 /**
  * Implementation of StockRepository managing stock prices and data.
- * This repository is now focused solely on stock data management.
- * Price generation and WebSocket communication are handled by StockPriceCoordinator.
+ * Thread-safety is ensured by the Mutex protecting the mutable stocks map.
  */
 @Singleton
 class StockRepositoryImpl @Inject constructor() : StockRepository {
@@ -38,12 +37,8 @@ class StockRepositoryImpl @Inject constructor() : StockRepository {
         return _stocksFlow.asStateFlow()
     }
 
-    override fun updatePrices(priceUpdates: List<*>) {
-        // Cast to PriceUpdateDto list
-        @Suppress("UNCHECKED_CAST")
-        val updates = priceUpdates as? List<PriceUpdateDto> ?: return
-
-        updates.forEach { update ->
+    override suspend fun updatePrices(priceUpdates: List<PriceUpdate>) {
+        priceUpdates.forEach { update ->
             stocks[update.symbol]?.let { currentStock ->
                 stocks[update.symbol] = createStock(
                     symbol = update.symbol,
@@ -55,7 +50,7 @@ class StockRepositoryImpl @Inject constructor() : StockRepository {
         emitStocks()
     }
 
-    override fun getCurrentStocks(): List<Stock> {
+    override suspend fun getCurrentStocks(): List<Stock> {
         return stocks.values.toList()
     }
 

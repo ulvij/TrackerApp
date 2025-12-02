@@ -1,6 +1,9 @@
 package com.tracker.data.connection.client
 
 import com.tracker.domain.connection.model.ConnectionState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,11 +16,18 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
+sealed interface WebSocketAction {
+    object Connect : WebSocketAction
+    object Disconnect : WebSocketAction
+    data class SendMessage(val message: String) : WebSocketAction
+}
+
 /**
  * Manager class for WebSocket connection using OkHttp
  */
 @Singleton
 class WebSocketManager @Inject constructor() {
+
     private val url: String = "wss://ws.postman-echo.com/raw"
 
     private val client = OkHttpClient.Builder()
@@ -57,10 +67,33 @@ class WebSocketManager @Inject constructor() {
         }
     }
 
-    fun connect() {
-        if (_connectionState.value is ConnectionState.Connected) {
-            return
+    // Single-threaded actor to serialize all WebSocket operations
+    private val actor = CoroutineScope(Dispatchers.IO).actor<WebSocketAction> {
+        for (action in channel) {
+            when (action) {
+                WebSocketAction.Connect -> connectInternal()
+                WebSocketAction.Disconnect -> disconnectInternal()
+                is WebSocketAction.SendMessage -> webSocket?.send(action.message)
+            }
         }
+    }
+
+    suspend fun connect() {
+        actor.send(WebSocketAction.Connect)
+    }
+
+    suspend fun disconnect() {
+        actor.send(WebSocketAction.Disconnect)
+    }
+
+    suspend fun sendMessage(message: String) {
+        actor.send(WebSocketAction.SendMessage(message))
+    }
+
+    private fun connectInternal() {
+        if (_connectionState.value is ConnectionState.Connected ||
+            _connectionState.value is ConnectionState.Connecting
+        ) return
 
         _connectionState.value = ConnectionState.Connecting
 
@@ -71,14 +104,9 @@ class WebSocketManager @Inject constructor() {
         webSocket = client.newWebSocket(request, listener)
     }
 
-    fun disconnect() {
+    private fun disconnectInternal() {
         webSocket?.close(1000, "User disconnected")
         webSocket = null
         _connectionState.value = ConnectionState.Disconnected
     }
-
-    fun sendMessage(message: String) {
-        webSocket?.send(message)
-    }
 }
-
