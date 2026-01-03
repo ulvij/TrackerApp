@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tracker.app.R
 import com.tracker.app.ui.TestTags
@@ -35,7 +36,7 @@ fun TrackerScreen(
     modifier: Modifier = Modifier,
     viewModel: TrackerViewModel = viewModel(),
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     // Memoize the callback to prevent unnecessary recompositions
     val onConnectionToggle = remember(viewModel) {

@@ -1,13 +1,12 @@
 package com.tracker.data.connection.repository
 
 import app.cash.turbine.test
-import com.tracker.data.connection.client.WebSocketManager
+import com.tracker.data.connection.client.WebSocketManagerV2
 import com.tracker.domain.connection.model.ConnectionState
 import io.mockk.clearAllMocks
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -25,7 +24,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class ConnectionRepositoryImplTest {
 
-    private lateinit var webSocketManager: WebSocketManager
+    private lateinit var webSocketManager: WebSocketManagerV2
     private lateinit var connectionRepository: ConnectionRepositoryImpl
     private val testDispatcher = StandardTestDispatcher()
 

@@ -1,6 +1,6 @@
 package com.tracker.data.connection.repository
 
-import com.tracker.data.connection.client.WebSocketManager
+import com.tracker.data.connection.client.WebSocketManagerV2
 import com.tracker.domain.connection.model.ConnectionState
 import com.tracker.domain.connection.repository.ConnectionRepository
 import kotlinx.coroutines.flow.Flow
@@ -10,12 +10,12 @@ import javax.inject.Singleton
 /**
  * Implementation of ConnectionRepository using WebSocket
  *
- * Note: Thread-safety is handled by WebSocketManager's internal Mutex.
+ * Note: Thread-safety is handled by WebSocketManagerV2's internal actor pattern.
  * This repository is just a thin adapter layer.
  */
 @Singleton
 class ConnectionRepositoryImpl @Inject constructor(
-    private val webSocketManager: WebSocketManager
+    private val webSocketManager: WebSocketManagerV2
 ) : ConnectionRepository {
 
     override suspend fun connect() {

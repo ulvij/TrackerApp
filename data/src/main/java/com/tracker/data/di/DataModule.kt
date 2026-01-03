@@ -1,7 +1,7 @@
 package com.tracker.data.di
 
 import android.content.Context
-import com.tracker.data.connection.client.WebSocketManager
+import com.tracker.data.connection.client.WebSocketManagerV2
 import com.tracker.data.connection.repository.ConnectionRepositoryImpl
 import com.tracker.data.stock.StockRepositoryImpl
 import com.tracker.data.theme.ThemeRepositoryImpl
@@ -38,14 +38,14 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideWebSocketManager(): WebSocketManager {
-        return WebSocketManager()
+    fun provideWebSocketManager(): WebSocketManagerV2 {
+        return WebSocketManagerV2()
     }
 
     @Provides
     @Singleton
     fun provideConnectionRepository(
-        webSocketManager: WebSocketManager
+        webSocketManager: WebSocketManagerV2
     ): ConnectionRepository {
         return ConnectionRepositoryImpl(webSocketManager)
     }
