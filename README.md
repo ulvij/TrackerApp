@@ -4,6 +4,15 @@ A modern Android application built with Jetpack Compose that displays real-time 
 
 ## 📸 Preview
 
+### 🎬 App Demo
+
+<p align="center">
+  <img src="./assets/screen-video.gif" alt="TrackerApp Demo" width="300"/>
+</p>
+<p align="center"><em>Live demo showing real-time price updates, theme switching, and connection management</em></p>
+
+### 📱 Screenshots
+
 <table>
   <tr>
     <td><img src="./assets/preview_dark_disconnected.png" alt="Dark Theme - Disconnected" width="250"/></td>
