@@ -12,13 +12,13 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Test cases for WebSocketManager
+ * Test cases for WebSocketManagerV2
  * Note: These tests use MockWebServer for integration testing
  */
 class WebSocketManagerTest {
 
     private lateinit var mockWebServer: MockWebServer
-    private lateinit var webSocketManager: WebSocketManager
+    private lateinit var webSocketManager: WebSocketManagerV2
 
     @Before
     fun setup() {
@@ -34,7 +34,7 @@ class WebSocketManagerTest {
     @Test
     fun `initial connection state should be Disconnected`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         // When
         webSocketManager.connectionState.test {
@@ -49,7 +49,7 @@ class WebSocketManagerTest {
     @Test
     fun `connect should change state to Connecting`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         webSocketManager.connectionState.test {
             awaitItem() // Initial Disconnected state
@@ -71,7 +71,7 @@ class WebSocketManagerTest {
     @Test
     fun `disconnect should change state to Disconnected`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         webSocketManager.connectionState.test {
             awaitItem() // Initial state
@@ -96,7 +96,7 @@ class WebSocketManagerTest {
     @Test
     fun `should not connect when already connected`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         webSocketManager.connectionState.test {
             // Initial Disconnected state
@@ -149,7 +149,7 @@ class WebSocketManagerTest {
     @Test
     fun `messages flow should have empty initial value`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         // When
         webSocketManager.messages.test {
@@ -164,7 +164,7 @@ class WebSocketManagerTest {
     @Test
     fun `sendMessage should not crash when not connected`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         // When/Then - Should not crash
         webSocketManager.sendMessage("test message")
@@ -173,7 +173,7 @@ class WebSocketManagerTest {
     @Test
     fun `disconnect should work when not connected`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         // When/Then - Should not crash
         webSocketManager.disconnect()
@@ -182,7 +182,7 @@ class WebSocketManagerTest {
     @Test
     fun `multiple disconnect calls should be safe`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         // When
         webSocketManager.disconnect()
@@ -200,7 +200,7 @@ class WebSocketManagerTest {
     @Test
     fun `should handle connection to invalid URL gracefully`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         webSocketManager.connectionState.test {
             awaitItem() // Initial state
@@ -224,7 +224,7 @@ class WebSocketManagerTest {
     @Test
     fun `connection state flow should be StateFlow`() {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         // Then
         val currentState = webSocketManager.connectionState.value
@@ -235,7 +235,7 @@ class WebSocketManagerTest {
     @Test
     fun `messages flow should be StateFlow`() {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         // Then
         val currentMessage = webSocketManager.messages.value
@@ -246,7 +246,7 @@ class WebSocketManagerTest {
     @Test
     fun `should create new connection after disconnect`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
 
         webSocketManager.connectionState.test {
             awaitItem() // Initial Disconnected
@@ -274,7 +274,7 @@ class WebSocketManagerTest {
     @Test
     fun `sendMessage with empty string should not crash`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
         webSocketManager.connect()
 
         // When/Then - Should not crash
@@ -284,7 +284,7 @@ class WebSocketManagerTest {
     @Test
     fun `sendMessage with long string should not crash`() = runTest {
         // Given
-        webSocketManager = WebSocketManager()
+        webSocketManager = WebSocketManagerV2()
         webSocketManager.connect()
         val longMessage = "x".repeat(10000)
 
@@ -292,4 +292,5 @@ class WebSocketManagerTest {
         webSocketManager.sendMessage(longMessage)
     }
 }
+
 
